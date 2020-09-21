@@ -1,6 +1,7 @@
 ﻿USE [LimitBreakPugs]
 GO
 
+/****** Object:  Table [dbo].[Players]    Script Date: 9/21/2020 11:22:52 AM ******/
 SET ANSI_NULLS ON
 GO
 

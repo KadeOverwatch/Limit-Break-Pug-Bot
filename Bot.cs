@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using Limit_Break_Pug_Bot.commands;
@@ -14,6 +15,9 @@ namespace Limit_Break_Pug_Bot
 {
     public class Bot
     {
+        public DB db = new DB();
+        public string pugAnnouncementsChannel_ID = "757595493269504061";
+
         public DiscordClient Client { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
@@ -40,10 +44,9 @@ namespace Limit_Break_Pug_Bot
 
             Client.Ready += OnClientReady;
 
-            Client.UseInteractivity(new InteractivityConfiguration
-            {
-                Timeout = TimeSpan.FromMinutes(2)
-            });
+            Client.MessageReactionAdded += OnReactionAdded;
+            Client.MessageReactionRemoved += OnReactionRemoved;
+
 
             var commandsConfig = new CommandsNextConfiguration
             {
@@ -65,6 +68,34 @@ namespace Limit_Break_Pug_Bot
         private Task OnClientReady(ReadyEventArgs e)
         {
             return Task.CompletedTask;
+        }
+
+        private async Task OnReactionAdded(MessageReactionAddEventArgs e)
+        {
+            if (e.Channel.Id.ToString() == pugAnnouncementsChannel_ID)
+            {
+                var player = db.GetPlayer(e.User).Result;
+                var eve = db.GetEvent(e.Message).Result;
+                await db.CreateRegistration(player, eve);
+
+                await e.Guild.GetMemberAsync(e.User.Id).Result
+                    .SendMessageAsync($"You have been signed up for the pug occurring on {eve.Scheduled_Date.ToShortDateString()} at {eve.Scheduled_Date.ToShortTimeString()}!");
+            }
+            await Task.CompletedTask;
+        }
+
+        private async Task OnReactionRemoved(MessageReactionRemoveEventArgs e)
+        {
+            if (e.Channel.Id.ToString() == pugAnnouncementsChannel_ID)
+            {
+                var player = db.GetPlayer(e.User).Result;
+                var eve = db.GetEvent(e.Message).Result;
+                await db.UpdateRegistration(player, eve);
+
+                await e.Guild.GetMemberAsync(e.User.Id).Result
+                    .SendMessageAsync($"You have removed yourself from the pug occuring on {eve.Scheduled_Date.ToShortDateString()} at {eve.Scheduled_Date.ToShortTimeString()}.");
+            }
+            await Task.CompletedTask;
         }
     }
 }
