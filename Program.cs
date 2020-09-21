@@ -8,6 +8,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using Microsoft.Extensions.Configuration;
 
+/* You need to add your own config.json file to the project. Contact Kade. */
+
 namespace Limit_Break_Pug_Bot
 {
     class Program
