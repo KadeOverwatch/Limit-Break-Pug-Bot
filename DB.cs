@@ -21,6 +21,8 @@ namespace Limit_Break_Pug_Bot
             using (SqlCommand cmd = new SqlCommand($"SELECT TOP 1 * FROM dbo.Players WHERE Discord_Tag = '{mbr.Username}#{mbr.Discriminator}'", conn))  // rpl w sp
             {
                 await conn.OpenAsync();
+
+                Console.WriteLine(cmd.CommandText);
                 var reader = await cmd.ExecuteReaderAsync();
 
                 if (!reader.Read())
@@ -66,7 +68,7 @@ namespace Limit_Break_Pug_Bot
 
         public async Task UpdateRegistration(Player player, PugEvent e)
         {
-            await Query("UPDATE dbo.Registrations SET Player_Cancelled = '1' WHERE Event_ID = '61683a91-66f2-47e1-9912-2ea4f1410ff9' AND Player_ID = 'ebb8b6ce-4592-42ca-9e7e-d34483245dca'");
+            await Query($"UPDATE dbo.Registrations SET Player_Cancelled = '1' WHERE Event_ID = '{e.ID}' AND Player_ID = '{player.ID}'");
             await Task.CompletedTask;
         }
 
